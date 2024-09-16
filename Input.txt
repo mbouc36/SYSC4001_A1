@@ -1,0 +1,6 @@
+﻿SYSCALL, 7
+END_IO, 20
+CPU, 100
+I/O, 250
+CPU, 87
+I/O, 328
