@@ -1,0 +1,4 @@
+﻿Time of the event, Duration of the event, Event type 
+
+
+Empty , for , now
