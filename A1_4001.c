@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-FILE *trace_file, *execution_file;
+FILE *trace_file, *execution_file, *vector_table;
 
     char line[100];
     char activity[50];
@@ -18,6 +18,7 @@ int main(){
 
     trace_file = fopen("trace.txt", "r"); //open the file
     execution_file = fopen("execution.txt","w"); // log the events
+    vector_table = fopen("VectorTable", "r"); // access the vector table when there's a systems call 
 
 
     if (trace_file != NULL){ // see if the file is not empty
@@ -33,5 +34,7 @@ int main(){
         }
     }
     fclose(trace_file);
+    fclose(execution_file);
+    fclose(vector_table);
     return 0;
 }
