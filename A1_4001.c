@@ -13,6 +13,13 @@ logEvent(execution_file, time_of_event, duration, event_type){
     fprintf(execution_file, "%d %d %s\n", time_of_event, duration, event_type);
     time_of_event+=duration;
 }
+/ functions to handle inteerupts 
+void HandleInterrupt(int ISRtime, FILE *execution_file, int time_of_event){
+    logEvent(execution_file, time_of_event, switch_user_modes());
+    logEvent();
+    
+
+}
 
 int main(){
 
