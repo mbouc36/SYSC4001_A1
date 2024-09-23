@@ -35,7 +35,7 @@ int get_ISR_address_from_vector_table(int current_time){
 
 //get ISR start address, address from vector table, execute the instructions for the ISR (ISR execute time +1 +1)
 int execute_ISR(int current_time, int vector_table_address, int vector_table[4][4]){
-    int ISR_duration;
+    float ISR_duration;
     int memory_position;
     for (int i = 0;  i < 4; i++ ){
         if (vector_table[i][1] == vector_table_address){
@@ -48,11 +48,11 @@ int execute_ISR(int current_time, int vector_table_address, int vector_table[4][
     get_ISR_address_from_vector_table(current_time);
 
 
-    printf("%d, %d, exectute ISR", current_time, ISR_duration * 0.40);
+    printf("%d, %.0f, exectute ISR", current_time, ISR_duration * 0.40);
     current_time += ISR_duration * 0.40;
-    printf("%d, %d, transfer data", current_time, ISR_duration * 30);
+    printf("%d, %.0f, transfer data", current_time, ISR_duration * 30);
     current_time += ISR_duration * 0.30;
-    printf("%d, %d, check for errors", current_time, ISR_duration - ISR_duration * 0.40 - ISR_duration * 30);
+    printf("%d, %.0f, check for errors", current_time, ISR_duration - ISR_duration * 0.40 - ISR_duration * 30);
     current_time += ISR_duration - ISR_duration * 0.40 - ISR_duration * 30;
 
     return ISR_duration;
