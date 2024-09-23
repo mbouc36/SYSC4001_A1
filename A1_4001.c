@@ -15,11 +15,8 @@ void logEvent(int time_of_event, int duration, const char *event_type) {
 }
 
 void loadTrace(FILE *trace_file) {
-    char line[100];
-
-    
+    char line[100];    
     fgets(line, sizeof(line), trace_file);
-
     while (fgets(line, sizeof(line), trace_file) != NULL) {
         
         if (sscanf(line, "%[^,], %d, %d", activities[num_of_activities], &addresses[num_of_activities], &durations[num_of_activities]) == 3) {
