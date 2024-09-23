@@ -13,13 +13,18 @@ logEvent(execution_file, time_of_event, duration, event_type){
     fprintf(execution_file, "%d %d %s\n", time_of_event, duration, event_type);
     time_of_event+=duration;
 }
-/ functions to handle inteerupts 
+// functions to handle inteerupts 
 void HandleInterrupt(int ISRtime, FILE *execution_file, int time_of_event){
     logEvent(execution_file, time_of_event, switch_user_modes());
     logEvent();
     
 
 }
+
+int vector_table[4][4] = {{0, 7, 14, 110},
+                          {0, 12, 24, 250}, 
+                          {0, 20, 40, 170},
+                          {0, 22, 22, 328}};
 
 int main(){
 
