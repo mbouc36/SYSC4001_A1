@@ -1,29 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h> 
+#ifndef FXNS_H
+#define FXNS_H
+#endif
 
 //switches user modes (1 ms)
-int switch_user_modes();
+int switch_user_modes(int current_time);
 
 //saves and restores context (1-3 ms random)
-int save_restore_context(); 
+int save_restore_context(int current_time); 
 
 // calculates where in memory the ISR starts (1ms)
-int get_ISR_start_address();
+int get_ISR_start_address(int current_time, int vector_table_address, int memory_position);
 
 //get the address if the ISR from the vector table (1 ms)
-int get_ISR_address_from_vector_table(int vector_table_address, int vector_table[3][3], int vector_table_size_h, int vector_table_size_w);
+int get_ISR_address_from_vector_table(int current_time);
 
 //execute the instructions for the ISR (duration found from input on vector table)
-int execute_ISR(int vector_table_address);
+int execute_ISR(int current_time, int vector_table_addres, int vector_table[4][4]);
 
 //Return the value from the interrupt subroutine ( 1ms)
-int IRET();
+int IRET(int current_time);
 
-//This function represetns the time it takes to initialize the program (50 ms)
-int initalize_program();
-
-//Value calculation (100 ms)
-int update_counter();
-
-//this represents the time it takes to return after the final END_IO
-int handle_loop();
+//Handles the end of I/O situation
+int end_of_IO(int current_time, int vector_table_addres, int vector_table[4][4]);
