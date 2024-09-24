@@ -1,0 +1,15 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/michaelb/Documents/GitHub/SYSC4001_A1/A1_4001'
+relocations:
+  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x0, symBinAddr: 0x100003814, symSize: 0x108 }
+  - { offsetInCU: 0x42, offset: 0x42, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x0, symBinAddr: 0x100003814, symSize: 0x108 }
+  - { offsetInCU: 0x26, offset: 0x2B9, size: 0x8, addend: 0x0, symName: _switch_user_modes, symObjAddr: 0x0, symBinAddr: 0x10000391C, symSize: 0x50 }
+  - { offsetInCU: 0x41, offset: 0x2D4, size: 0x8, addend: 0x0, symName: _switch_user_modes, symObjAddr: 0x0, symBinAddr: 0x10000391C, symSize: 0x50 }
+  - { offsetInCU: 0x69, offset: 0x2FC, size: 0x8, addend: 0x0, symName: _save_restore_context, symObjAddr: 0x50, symBinAddr: 0x10000396C, symSize: 0x94 }
+  - { offsetInCU: 0xBB, offset: 0x34E, size: 0x8, addend: 0x0, symName: _get_ISR_start_address, symObjAddr: 0xE4, symBinAddr: 0x100003A00, symSize: 0x70 }
+  - { offsetInCU: 0xFF, offset: 0x392, size: 0x8, addend: 0x0, symName: _get_ISR_address_from_vector_table, symObjAddr: 0x154, symBinAddr: 0x100003A70, symSize: 0x50 }
+  - { offsetInCU: 0x127, offset: 0x3BA, size: 0x8, addend: 0x0, symName: _execute_ISR, symObjAddr: 0x1A4, symBinAddr: 0x100003AC0, symSize: 0x21C }
+  - { offsetInCU: 0x1A3, offset: 0x436, size: 0x8, addend: 0x0, symName: _IRET, symObjAddr: 0x3C0, symBinAddr: 0x100003CDC, symSize: 0x50 }
+  - { offsetInCU: 0x1CB, offset: 0x45E, size: 0x8, addend: 0x0, symName: _end_of_IO, symObjAddr: 0x410, symBinAddr: 0x100003D2C, symSize: 0xC8 }
+...

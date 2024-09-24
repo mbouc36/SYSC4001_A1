@@ -48,7 +48,7 @@ int execute_ISR(int current_time, int vector_table_address, int vector_table[4][
     get_ISR_address_from_vector_table(current_time);
 
 
-    printf("%d, %.0f, exectute ISR", current_time, ISR_duration * 0.40);
+    printf("%d, %.0f, call device driver", current_time, ISR_duration * 0.40);
     current_time += ISR_duration * 0.40;
     printf("%d, %.0f, transfer data", current_time, ISR_duration * 30);
     current_time += ISR_duration * 0.30;
