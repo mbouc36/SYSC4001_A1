@@ -43,6 +43,14 @@ int main(){
         }
     }
 
+
+    //Let's prepare the output file
+    execution_file = fopen("execution.txt", "w");
+    if (execution_file == NULL) {
+        printf("Error opening file.\n");
+        return 1;  //If file couldn't open
+    }
+
     // Now that we've loaded the vector table let's start parsing the trace file
     trace_file = fopen("trace.txt","r");
     
@@ -64,27 +72,27 @@ int main(){
          if (sscanf(line, "%s %d, %d", operation, &vector_number, &duration) == 3) {
             //This is either a SYSCALL or END_IO
             if (strcmp(operation, "SYSCALL") == 0){
-                switch_user_modes(&current_time);
-                save_restore_context(&current_time);
-                get_ISR_start_address(&current_time, vector_number);
-                load_vector_address_to_pc(&current_time, vector_table_array[vector_number]);
-                execute_ISR(&current_time, duration);
-                IRET(&current_time);
+                switch_user_modes(&current_time, execution_file);
+                save_restore_context(&current_time, execution_file);
+                get_ISR_start_address(&current_time, vector_number, execution_file);
+                load_vector_address_to_pc(&current_time, vector_table_array[vector_number], execution_file);
+                execute_ISR(&current_time, duration, execution_file);
+                IRET(&current_time, execution_file);
 
             } else if (strcmp(operation, "END_IO") == 0){
-                check_priority_of_ISR(&current_time);
-                check_if_masked(&current_time);
-                switch_user_modes(&current_time);
-                save_restore_context(&current_time);
-                get_ISR_start_address(&current_time, vector_number);
-                load_vector_address_to_pc(&current_time, vector_table_array[vector_number]);
-                end_of_IO(&current_time, duration);
-                IRET(&current_time);
+                check_priority_of_ISR(&current_time, execution_file);
+                check_if_masked(&current_time, execution_file);
+                switch_user_modes(&current_time, execution_file);
+                save_restore_context(&current_time, execution_file);
+                get_ISR_start_address(&current_time, vector_number, execution_file);
+                load_vector_address_to_pc(&current_time, vector_table_array[vector_number], execution_file);
+                end_of_IO(&current_time, duration, execution_file);
+                IRET(&current_time, execution_file);
             }
         } else if (sscanf(line, "%[^,], %d", operation, &duration) == 2) { // 2 because this is the number of variables returned
             //This is a cpu function
             if (strcmp(operation, "CPU") == 0){
-                cpu_execution(&current_time, duration);
+                cpu_execution(&current_time, duration, execution_file);
             }
            
         }else {
@@ -92,16 +100,8 @@ int main(){
         }
     }
     fclose(trace_file);
+    fclose(execution_file);
     
-
-
-    // read line determine type (CPU, SYSCALL, END_IO)      TODO: ask TA abt breakdown for CPU and END_IO
-    // place updated time on output and add function and duration
-
-    //current implementation loads input into an array, couldn't I just read directly
-    // yep we can used fscanf/ fgetc() they return EOF when end of file
-
-
 
 
                           
