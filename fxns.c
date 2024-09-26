@@ -1,81 +1,82 @@
 #include "fxns.h"
 
 //switches user modes (1 ms)
-int switch_user_modes(int current_time){
-    printf("%d, %d, Switch User modes", current_time, 1);
-    current_time += 1;
-    return 1;
+void switch_user_modes(int *current_time){
+    printf("%d, %d, switch to kernel mode\n", *current_time, 1);
+    *current_time++; 
 }
 
 //saves and restores context (1-3 ms random)
-int save_restore_context(int current_time){
+void save_restore_context(int *current_time){
     int min = 1;
     int max = 3;
 
     // Generate a random number between 10 and 30
     int randomInt = rand() % (max - min + 1) + min;
-    printf("%d, %d, context saved/restored", current_time, randomInt);
-    current_time += randomInt;
-    return randomInt;
+    printf("%d, %d, context saved\n", *current_time, randomInt);
+    *current_time += randomInt;
 }
 
 // calculates where in memory the ISR starts (1ms)
-int get_ISR_start_address(int current_time, int vector_table_address, int memory_position){
-    printf("%d, %d, Find vector %d in position %d", current_time, 1, vector_table_address, memory_position);
-    current_time += 1;
-    return 1;
+void get_ISR_start_address(int *current_time, unsigned int vector_table_address){
+    printf("%d, %d, Find vector %d in position 0x%x\n", *current_time, 1, vector_table_address, vector_table_address * 2); // memeory position is vector number in hex + 0x2
+    *current_time++; 
 }
 
+
 //get the address if the ISR from the vector table (1 ms + duration of ISR)
-int get_ISR_address_from_vector_table(int current_time){
-    printf("%d, %d, Obtain ISR address", current_time, 1);
-    current_time += 1;
-    return 1; 
+void load_vector_address_to_pc(int *current_time, unsigned int ISR_address){
+    printf("%d, %d, load address 0x%x into the PC\n", *current_time, 1, ISR_address);
+    *current_time++; 
 }
 
 //get ISR start address, address from vector table, execute the instructions for the ISR (ISR execute time +1 +1)
-int execute_ISR(int current_time, int vector_table_address, int vector_table[4][4]){
-    float ISR_duration;
-    int memory_position;
-    for (int i = 0;  i < 4; i++ ){
-        if (vector_table[i][1] == vector_table_address){
-            ISR_duration = vector_table[i][3];
-            memory_position = vector_table[i][2];
-            
-        }
-    }
-    get_ISR_start_address(current_time, vector_table_address, memory_position);
-    get_ISR_address_from_vector_table(current_time);
+//This needs to be completelty redone
+void execute_ISR(int *current_time, float ISR_duration){
 
+    printf("%d, %.0f, SYSCALL: run the ISR\n", *current_time, ISR_duration * 0.50);
+    *current_time += ISR_duration * 0.50;
+    printf("%d, %.0f, transfer data\n", *current_time, ISR_duration * 0.40);
+    *current_time += ISR_duration * 0.40;
+    printf("%d, %.0f, check for errors\n", *current_time, ISR_duration - ISR_duration * 0.50 - ISR_duration * 0.40);
 
-    printf("%d, %.0f, call device driver", current_time, ISR_duration * 0.40);
-    current_time += ISR_duration * 0.40;
-    printf("%d, %.0f, transfer data", current_time, ISR_duration * 30);
-    current_time += ISR_duration * 0.30;
-    printf("%d, %.0f, check for errors", current_time, ISR_duration - ISR_duration * 0.40 - ISR_duration * 30);
-    current_time += ISR_duration - ISR_duration * 0.40 - ISR_duration * 30;
-
-    return ISR_duration;
+    *current_time += ISR_duration - ISR_duration * 0.50 - ISR_duration * 0.40;
 }
 
 //Return the value from the interrupt subroutine ( 1ms)
-int IRET(int current_time){
-    printf("%d, %d, exectute ISR", current_time, 1);
+void IRET(int *current_time){
+    printf("%d, %d, IRET\n", *current_time, 1);
     current_time += 1;
-    return 1;
+    *current_time++; 
+
 }
 
 
 //Handles the end of I/O situation
-int end_of_IO(int current_time, int vector_table_address, int vector_table[4][4]){
-    int ISR_duration;
+void end_of_IO(int *current_time, int ISR_duration){
 
-    for (int i = 0;  i < 4; i++ ){
-        if (vector_table[i][1] == vector_table_address){
-            ISR_duration = vector_table[i][3];            
-        }
-    }
-    printf("%d, %d, end of I/O %d", current_time, ISR_duration, vector_table_address);
+    printf("%d, %d, END_IO\n", *current_time, ISR_duration);
 
-    return ISR_duration;
+    *current_time += ISR_duration;
+}
+
+
+//checks interrupt pritority
+void check_priority_of_ISR(int *current_time){
+    printf("%d, %d, check priority of interrupt\n", *current_time, 1);
+    *current_time++; 
+}
+
+//check if ISR is masked
+void check_if_masked(int *current_time){
+    printf("%d, %d, check if masked\n", *current_time, 1);
+    *current_time++; 
+}
+
+
+
+//represetns efforts by the cpu, duration obtained from trace.txt
+void cpu_execution(int *current_time, int duration){
+    printf("%d, %d, cpu execution \n", *current_time, duration);
+    *current_time += duration;
 }
