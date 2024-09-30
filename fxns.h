@@ -17,7 +17,7 @@ void get_ISR_start_address(int *current_time, unsigned int vector_table_address,
 void load_vector_address_to_pc(int *current_time, unsigned int ISR_address, FILE *execution_file);
 
 //execute the instructions for the ISR (duration found from input on vector table)
-void execute_ISR(int *current_time, float ISR_duration, FILE *execution_file);
+void execute_ISR(int *current_time, int ISR_duration, FILE *execution_file);
 
 //Return the value from the interrupt subroutine ( 1ms)
 void IRET(int *current_time, FILE *execution_file);
