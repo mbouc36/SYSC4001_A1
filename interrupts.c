@@ -195,7 +195,7 @@ int main(int argc, char *argv[]){
                 execute_ISR(&current_time, duration, execution_file);
                 IRET(&current_time, execution_file);
                 int syscall_end = clock();
-                double syscall_total_time = (double)(syscall_end - syscall_start)/1000.0;
+                double syscall_total_time = (double)(syscall_end - syscall_start)/ CLOCKS_PER_SEC;
                 fprintf(time_file, "%d,%.6f\n", i,syscall_total_time); // log in seconds
 
                 
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]){
                 IRET(&current_time, execution_file);
 
                 int end_clock = clock();
-                double total_end_io= (double)(end_clock - end_io_start)/1000.0;
+                double total_end_io= (double)(end_clock - end_io_start)/ CLOCKS_PER_SEC;
                 fprintf(time_file,"%d,%s,%.6f\n", i, total_end_io); // in seconds
 
             }
