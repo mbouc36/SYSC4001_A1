@@ -3,10 +3,11 @@
 #include <string.h>
 #include "interrupts.h"
 #include <unistd.h>
+#include<time.h>
 
 
 //switches user modes (1 ms)
-void switch_user_modes(int *current_time, FILE *execution_file){
+void switch_user_modes(int *current_time, FILE *execution_file, *time_file){
     usleep(1*1000);
     fprintf(execution_file, "%d, %d, switch to kernel mode\n", *current_time, 1);
     *current_time += 1; 
@@ -118,6 +119,12 @@ int main(int argc, char *argv[]){
     char operation[20];
     int duration, vector_number;
     int current_time = 0;
+
+    time_file = fopen("time_data.txt", "w"); // write to timer file 
+    if(time_file == NULL){
+        printf("can't open\n");
+        return 1;
+    }
  
     char *vector_table_name = argv[2];
     vector_table = fopen(vector_table_name, "r");
@@ -180,14 +187,21 @@ int main(int argc, char *argv[]){
          if (sscanf(line, "%s %d, %d", operation, &vector_number, &duration) == 3) {
             //This is either a SYSCALL or END_IO
             if (strcmp(operation, "SYSCALL") == 0){
+                int syscall_start = clock();
                 switch_user_modes(&current_time, execution_file);
                 save_restore_context(&current_time, execution_file);
                 get_ISR_start_address(&current_time, vector_number, execution_file);
                 load_vector_address_to_pc(&current_time, vector_table_array[vector_number], execution_file);
                 execute_ISR(&current_time, duration, execution_file);
                 IRET(&current_time, execution_file);
+                int syscall_end = clock();
+                double syscall_total_time = (double)(syscall_end - syscall_start)/1000.0;
+                fprintf(time_file, "%d,%.6f\n", i,syscall_total_time); // log in seconds
+
+                
 
             } else if (strcmp(operation, "END_IO") == 0){
+                int end_io_start = clock();
                 check_priority_of_ISR(&current_time, execution_file);
                 check_if_masked(&current_time, execution_file);
                 switch_user_modes(&current_time, execution_file);
@@ -196,7 +210,13 @@ int main(int argc, char *argv[]){
                 load_vector_address_to_pc(&current_time, vector_table_array[vector_number], execution_file);
                 end_of_IO(&current_time, duration, execution_file);
                 IRET(&current_time, execution_file);
+
+                int end_clock = clock();
+                double total_end_io= (double)(end_clock - end_io_start)/1000.0;
+                fprintf(time_file,"%d,%s,%.6f\n", i, total_end_io); // in seconds
+
             }
+             
         } else if (sscanf(line, "%[^,], %d", operation, &duration) == 2) { // 2 because this is the number of variables returned
             //This is a cpu function
             if (strcmp(operation, "CPU") == 0){
@@ -209,6 +229,7 @@ int main(int argc, char *argv[]){
     }
     fclose(trace_file);
     fclose(execution_file);
+    fclose(time_file);
 
 
                           
