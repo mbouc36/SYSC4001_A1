@@ -7,7 +7,7 @@
 
 
 //switches user modes (1 ms)
-void switch_user_modes(int *current_time, FILE *execution_file, *time_file){
+void switch_user_modes(int *current_time, FILE *execution_file){
     usleep(1*1000);
     fprintf(execution_file, "%d, %d, switch to kernel mode\n", *current_time, 1);
     *current_time += 1; 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]){
         printf("Too many command line inputs");
     }
 
-    FILE  *trace_file, *vector_table, *execution_file;
+    FILE  *trace_file, *vector_table, *execution_file, *time_file;
 
     char line[256];
     int vector_table_array[100]; // we use this array to store the vector table
