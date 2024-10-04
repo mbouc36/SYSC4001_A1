@@ -106,7 +106,7 @@ void cpu_execution(int *current_time, int duration, FILE *execution_file){
 }
 
 int main(int argc, char *argv[]){
-    if (argc > 4){
+    if (argc > 3){
         printf("Too many command line inputs");
     }
 
@@ -119,8 +119,7 @@ int main(int argc, char *argv[]){
     int duration, vector_number;
     int current_time = 0;
  
-    char *vector_table_name = argv[2];
-    vector_table = fopen(vector_table_name, "r");
+    vector_table = fopen("vector_table.txt", "r");
 
 
     if (NULL == vector_table){
@@ -151,7 +150,7 @@ int main(int argc, char *argv[]){
 
 
     //Let's prepare the output file
-    char *execution_file_name = argv[3];
+    char *execution_file_name = argv[2];
     execution_file = fopen(execution_file_name, "w");
     if (execution_file == NULL) {
         printf("Error opening file.\n");

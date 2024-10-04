@@ -25,7 +25,7 @@ int test1(){
     char real_event[50];
     
     real_output = fopen("execution.txt", "r");
-    desired_output = fopen("test1/test1_execution.txt", "r");
+    desired_output = fopen("test1/trace1.txt", "r");
 
     if (NULL == desired_output){
         printf("Desired output file can't open\n");
