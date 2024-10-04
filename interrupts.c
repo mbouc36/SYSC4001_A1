@@ -3,6 +3,7 @@
 #include <string.h>
 #include "interrupts.h"
 
+
 //switches user modes (1 ms)
 void switch_user_modes(int *current_time, FILE *execution_file){
     fprintf(execution_file, "%d, %d, switch to kernel mode\n", *current_time, 1);
@@ -79,12 +80,12 @@ void check_if_masked(int *current_time, FILE *execution_file){
 
 //represetns efforts by the cpu, duration obtained from trace.txt
 void cpu_execution(int *current_time, int duration, FILE *execution_file){
-    fprintf(execution_file, "%d, %d, CPU execution \n", *current_time, duration);
+    fprintf(execution_file, "%d, %d, CPU execution\n", *current_time, duration);
     *current_time += duration;
 }
 
 int main(int argc, char *argv[]){
-    if (argc > 2){
+    if (argc > 3){
         printf("Too many command line inputs");
     }
 
@@ -97,8 +98,8 @@ int main(int argc, char *argv[]){
     int duration, vector_number;
     int current_time = 0;
  
-
-    vector_table = fopen("vector_table.txt", "r");
+    char *vector_table_name = argv[2];
+    vector_table = fopen(vector_table_name, "r");
 
 
     if (NULL == vector_table){
@@ -186,7 +187,6 @@ int main(int argc, char *argv[]){
     }
     fclose(trace_file);
     fclose(execution_file);
-    
 
 
                           
