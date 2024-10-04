@@ -3,7 +3,7 @@
 #include <string.h>
 #include "interrupts.h"
 #include <unistd.h>
-#include<time.h>
+#include <sys/time.h> 
 
 
 //switches user modes (1 ms)
@@ -187,21 +187,33 @@ int main(int argc, char *argv[]){
          if (sscanf(line, "%s %d, %d", operation, &vector_number, &duration) == 3) {
             //This is either a SYSCALL or END_IO
             if (strcmp(operation, "SYSCALL") == 0){
-                int syscall_start = clock();
+                syscall_count++;
+                struct timeval syscall_start, syscall_end;
+                gettimeofday(&syscall_start, NULL);
+                
                 switch_user_modes(&current_time, execution_file);
                 save_restore_context(&current_time, execution_file);
                 get_ISR_start_address(&current_time, vector_number, execution_file);
                 load_vector_address_to_pc(&current_time, vector_table_array[vector_number], execution_file);
                 execute_ISR(&current_time, duration, execution_file);
                 IRET(&current_time, execution_file);
-                int syscall_end = clock();
-                double syscall_total_time = (double)(syscall_end - syscall_start)/ CLOCKS_PER_SEC;
-                fprintf(time_file, "%d,%.6f\n", i,syscall_total_time); // log in seconds
-
+                
+                gettimeofday(&syscall_end, NULL);
+                double syscall_total_time = (syscall_end.tv_sec - syscall_start.tv_sec) * 1000.0 + 
+                                            (syscall_end.tv_usec - syscall_start.tv_usec) / 1000.0;
+                total_overhead_time += syscall_total_time;
+                total_cpu_time += duration;
+                fprintf(time_file, "SYSCALL, %.6f\n", syscall_total_time);
+                fflush(time_file);
                 
 
             } else if (strcmp(operation, "END_IO") == 0){
-                int end_io_start = clock();
+                end_io_count++;
+                
+
+                struct timeval end_io_start, end_io_end;
+                gettimeofday(&end_io_start, NULL);
+
                 check_priority_of_ISR(&current_time, execution_file);
                 check_if_masked(&current_time, execution_file);
                 switch_user_modes(&current_time, execution_file);
@@ -211,9 +223,13 @@ int main(int argc, char *argv[]){
                 end_of_IO(&current_time, duration, execution_file);
                 IRET(&current_time, execution_file);
 
-                int end_clock = clock();
-                double total_end_io= (double)(end_clock - end_io_start)/ CLOCKS_PER_SEC;
-                fprintf(time_file,"%d,%s,%.6f\n", i, total_end_io); // in seconds
+                gettimeofday(&end_io_end, NULL);
+                double total_end_io = (end_io_end.tv_sec - end_io_start.tv_sec) * 1000.0 + 
+                                      (end_io_end.tv_usec - end_io_start.tv_usec) / 1000.0;
+                total_overhead_time += total_end_io;
+                total_io_time += duration;
+                fprintf(time_file, "END_IO, %.6f\n", total_end_io);
+                fflush(time_file);
 
             }
              
@@ -227,13 +243,27 @@ int main(int argc, char *argv[]){
             printf("Failed to parse line: %s", line);
         }
     }
+
+    // summary of time 
+    fprintf(time_file, "------SUMMARY------\n");
+    fprintf(time_file, "Total CPU Time: %.3f ms\n", total_cpu_time);
+    fprintf(time_file, "Total I/O Time: %.3f ms\n", total_io_time);
+    fprintf(time_file, "Total Overhead Time: %.3f ms\n", total_overhead_time);
+
+    double total_time = total_cpu_time + total_io_time + total_overhead_time;
+
+    if (total_time > 0) {
+        fprintf(time_file, "CPU Usage Ratio: %.2f%%\n", (total_cpu_time / total_time) * 100);
+        fprintf(time_file, "I/O Activity Ratio: %.2f%%\n", (total_io_time / total_time) * 100);
+        fprintf(time_file, "Overhead Ratio: %.2f%%\n", (total_overhead_time / total_time) * 100);
+    } else {
+        fprintf(time_file, "No CPU or I/O time recorded, cannot calculate ratios.\n");
+    }
+
+    
     fclose(trace_file);
     fclose(execution_file);
-    fclose(time_file);
-
-
-                          
-                          
+    fclose(time_file);                        
     return 0;
 
 }
