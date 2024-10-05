@@ -9,6 +9,7 @@
 
 //switches user modes (1 ms)
 void switch_user_modes(int *current_time, FILE *execution_file){
+void switch_user_modes(int *current_time, FILE *execution_file){
     usleep(1*1000);
     fprintf(execution_file, "%d, %d, switch to kernel mode\n", *current_time, 1);
     *current_time += 1; 
@@ -112,6 +113,7 @@ int main(int argc, char *argv[]){
         printf("Too many command line inputs");
     }
 
+    FILE  *trace_file, *vector_table, *execution_file, *time_file;
     FILE  *trace_file, *vector_table, *execution_file, *time_file;
 
     char line[256];
@@ -234,13 +236,27 @@ int main(int argc, char *argv[]){
             printf("Failed to parse line: %s", line);
         }
     }
+
+    // summary of time 
+    fprintf(time_file, "------SUMMARY------\n");
+    fprintf(time_file, "Total CPU Time: %.3f ms\n", total_cpu_time);
+    fprintf(time_file, "Total I/O Time: %.3f ms\n", total_io_time);
+    fprintf(time_file, "Total Overhead Time: %.3f ms\n", total_overhead_time);
+
+    double total_time = total_cpu_time + total_io_time + total_overhead_time;
+
+    if (total_time > 0) {
+        fprintf(time_file, "CPU Usage Ratio: %.2f%%\n", (total_cpu_time / total_time) * 100);
+        fprintf(time_file, "I/O Activity Ratio: %.2f%%\n", (total_io_time / total_time) * 100);
+        fprintf(time_file, "Overhead Ratio: %.2f%%\n", (total_overhead_time / total_time) * 100);
+    } else {
+        fprintf(time_file, "No CPU or I/O time recorded, cannot calculate ratios.\n");
+    }
+
+    
     fclose(trace_file);
     fclose(execution_file);
-    fclose(time_file);
-
-
-                          
-                          
+    fclose(time_file);                        
     return 0;
 
 }
