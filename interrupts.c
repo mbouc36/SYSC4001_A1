@@ -1,13 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "interrupts.h"
 #include <unistd.h>
 #include<time.h>
+#include "interrupts.h"
+
 
 
 //switches user modes (1 ms)
-void switch_user_modes(int *current_time, FILE *execution_file, *time_file){
+void switch_user_modes(int *current_time, FILE *execution_file){
     usleep(1*1000);
     fprintf(execution_file, "%d, %d, switch to kernel mode\n", *current_time, 1);
     *current_time += 1; 
@@ -46,7 +47,7 @@ void execute_ISR(int *current_time, int ISR_duration, FILE *execution_file){
     if (ISR_duration > 1000){
         sleep(ISR_duration/1000);
     } else {
-        usleep(ISR_duration*1000);
+        usleep(ISR_duration*1000);        
     }
 
     fprintf(execution_file, "%d, %d, SYSCALL: run the ISR\n", *current_time, ISR_duration * 50 / 100);
@@ -73,6 +74,7 @@ void end_of_IO(int *current_time, int ISR_duration, FILE *execution_file){
         sleep(ISR_duration/1000);
     } else {
         usleep(ISR_duration*1000);
+        
     }
     fprintf(execution_file, "%d, %d, END_IO\n", *current_time, ISR_duration);
     *current_time += ISR_duration;
@@ -94,7 +96,6 @@ void check_if_masked(int *current_time, FILE *execution_file){
 }
 
 
-
 //represetns efforts by the cpu, duration obtained from trace.txt
 void cpu_execution(int *current_time, int duration, FILE *execution_file){
     if (duration > 1000){
@@ -111,7 +112,7 @@ int main(int argc, char *argv[]){
         printf("Too many command line inputs");
     }
 
-    FILE  *trace_file, *vector_table, *execution_file;
+    FILE  *trace_file, *vector_table, *execution_file, *time_file;
 
     char line[256];
     int vector_table_array[100]; // we use this array to store the vector table
@@ -119,6 +120,9 @@ int main(int argc, char *argv[]){
     char operation[20];
     int duration, vector_number;
     int current_time = 0;
+    int interrupt_number = 1;
+    struct timespec start, end;
+    
 
     time_file = fopen("time_data.txt", "w"); // write to timer file 
     if(time_file == NULL){
@@ -182,25 +186,29 @@ int main(int argc, char *argv[]){
         }
     }
       // Read the file line by line
+
+    
+
     while (fgets(line, sizeof(line), trace_file)) {
          if (sscanf(line, "%s %d, %d", operation, &vector_number, &duration) == 3) {
             //This is either a SYSCALL or END_IO
             if (strcmp(operation, "SYSCALL") == 0){
-                int syscall_start = clock();
+                //int syscall_start = clock();
+                clock_gettime(CLOCK_MONOTONIC, &start);
                 switch_user_modes(&current_time, execution_file);
                 save_restore_context(&current_time, execution_file);
                 get_ISR_start_address(&current_time, vector_number, execution_file);
                 load_vector_address_to_pc(&current_time, vector_table_array[vector_number], execution_file);
                 execute_ISR(&current_time, duration, execution_file);
                 IRET(&current_time, execution_file);
-                int syscall_end = clock();
-                double syscall_total_time = (double)(syscall_end - syscall_start)/1000.0;
-                fprintf(time_file, "%d,%.6f\n", i,syscall_total_time); // log in seconds
+                //int syscall_end = clock();
+                clock_gettime(CLOCK_MONOTONIC, &end);
+                double syscall_total_time = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+                fprintf(time_file, "%d,%.2f, %d\n", interrupt_number, syscall_total_time, duration); // log in milliseconds
 
                 
-
             } else if (strcmp(operation, "END_IO") == 0){
-                int end_io_start = clock();
+                clock_gettime(CLOCK_MONOTONIC, &start);
                 check_priority_of_ISR(&current_time, execution_file);
                 check_if_masked(&current_time, execution_file);
                 switch_user_modes(&current_time, execution_file);
@@ -210,10 +218,10 @@ int main(int argc, char *argv[]){
                 end_of_IO(&current_time, duration, execution_file);
                 IRET(&current_time, execution_file);
 
-                int end_clock = clock();
-                double total_end_io= (double)(end_clock - end_io_start)/1000.0;
-                fprintf(time_file,"%d,%s,%.6f\n", i, total_end_io); // in seconds
-
+                clock_gettime(CLOCK_MONOTONIC, &end);
+                double total_end_io = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+                fprintf(time_file,"%d,%.2f, %d\n", interrupt_number, total_end_io, duration); // in milliseconds
+                interrupt_number++;
             }
              
         } else if (sscanf(line, "%[^,], %d", operation, &duration) == 2) { // 2 because this is the number of variables returned
